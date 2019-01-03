@@ -5,6 +5,7 @@ const app = express()
 app.use(express.json());
 
 const iotaPort = 8083;
+const iota = new iotalib.IoTAgent();
 
 console.log("Initializing custom IoT agent...");
 
@@ -13,18 +14,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/tenants', (req, res) => {
-	const iota = new iotalib.IoTAgent();
 	iota.init().then(() => {
 		let tenants = iota.messenger.tenants;
 		res.status(200).send({tenants});
-	});
+	}).catch(err => res.send(err));
 });
 
 app.post('/tenants/:tenant/devices/:device/messages', (req, res) => {
 	let {tenant, device} = req.params;
 	let message = req.body;
 
-	const iota = new iotalib.IoTAgent();
 	iota.init().then(() => {
 	
 		let metadata = {
@@ -33,7 +32,7 @@ app.post('/tenants/:tenant/devices/:device/messages', (req, res) => {
 	
 		iota.updateAttrs(device, tenant, message, metadata);
 		res.status(200).send({tenant, device, message, metadata});
-	});
+	}).catch(err => res.send(err));
 });
 
 app.listen(iotaPort, () => {

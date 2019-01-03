@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/znti/dojot-iotagent-mvpeer#readme",
   "dependencies": {
-    "@dojot/iotagent-nodejs": "^2.1.0-alpha.1",
+    "@dojot/iotagent-nodejs": "^2.1.0-alpha.4",
     "express": "^4.16.4"
   }
 }
