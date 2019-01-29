@@ -4,13 +4,15 @@ const util = require('util');
 const app = express()
 app.use(express.json());
 
-const iotaPort = 8083;
+const dojotLib = require('@znti/dojot-web');
+
+const emuPort = 8083;
 const iota = new iotalib.IoTAgent();
 
-console.log("Initializing custom IoT agent...");
+console.log("Initializing emulator node...");
 
 app.get('/', (req, res) => {
-	res.status(200).send({message: 'customIoTAgent is on'});
+	res.status(200).send({message: 'dojot-emu up and running'});
 });
 
 app.get('/tenants', (req, res) => {
@@ -18,6 +20,36 @@ app.get('/tenants', (req, res) => {
 		let tenants = iota.messenger.tenants;
 		res.status(200).send({tenants});
 	}).catch(err => res.send(err));
+});
+
+app.post('/tenants', (req, res) => {
+
+	let tenantName = req.body.name;
+	let userName = `${tenantName}_admin`;
+	let emailAddr = `${userName}@nomail.com`;
+
+	if(!tenantName) {
+		console.error('No tenant name defined');
+		res.send(400);
+	}
+
+	let tenantData = {
+		username: userName,
+		service: tenantName,
+		email: emailAddr,
+		name: userName,
+		profile: "admin",
+	};
+
+	dojot.Users.set(tenantData).then((data) => {
+		res.status(201).send({
+			message: `Tenant ${tenantName} created.`,
+			credentials: {
+				username: userName,
+				password: 'temppwd',
+			},
+		});
+	});
 });
 
 app.post('/tenants/:tenant/devices/:device/messages', (req, res) => {
@@ -35,6 +67,16 @@ app.post('/tenants/:tenant/devices/:device/messages', (req, res) => {
 	}).catch(err => res.send(err));
 });
 
-app.listen(iotaPort, () => {
-	console.log('iotagent listening on port', iotaPort);
+app.listen(emuPort, () => {
+	console.log('dojot-emu listening on port', emuPort);
+});
+
+console.log('Initializing dojot client');
+let dojot = new dojotLib();
+dojot.configure('http://apigw:8000').then(configuredDojot => {
+	console.log('Configured');
+	configuredDojot.initializeWithCredentials({username:'admin', passwd:'admin'}).then(initializedDojot => {
+		console.log('Initialized');
+		dojot = configuredDojot;
+	});
 });

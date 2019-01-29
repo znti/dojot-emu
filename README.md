@@ -60,3 +60,35 @@ The docker-compose command can be used to apply the changes:
 The deployment can be checked by hitting the /emu endpoint on your dojot server.
 
 `curl localhost:8000/emu`
+
+# Endpoints
+The implemented functionalities are listed below.
+All endpoints are mapped from the default `/emu` route, so `/tenants` must be accessed through `/emu/tenants`.
+
+## GET /
+Returns a basic message to show this container is running and properly configured.
+
+## GET /tenants
+Lists the existing tenants on the platform
+
+## POST /tenants
+Creates a new tenant.
+The tenant name must be sent along the request body.
+
+```json
+{
+	name: newTenantName
+}
+```
+
+## POST /tenants/:tenantName/devices/:deviceId/messages
+Sents a message to the device identified by `deviceId`, under tenant `tenantName`.
+
+The body is a simple json mapping the device attributes
+
+```json
+{
+	message: 'hi'
+}
+```
+
