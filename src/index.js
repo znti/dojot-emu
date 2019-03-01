@@ -9,17 +9,30 @@ const dojotLib = require('@znti/dojot-web');
 const emuPort = 8083;
 const iota = new iotalib.IoTAgent();
 
-console.log("Initializing emulator node...");
+console.log('Initializing emulator node...');
+
+iota.init().then(() => {
+	console.log('IoT Agent is up');
+});
+
+let dojot = new dojotLib();
+dojot.configure('http://apigw:8000').then(configuredDojot => {
+	console.log('Configured');
+	configuredDojot.initializeWithCredentials({username:'admin', passwd:'admin'}).then(initializedDojot => {
+		console.log('dojot client is up');
+		dojot = configuredDojot;
+	});
+});
 
 app.get('/', (req, res) => {
 	res.status(200).send({message: 'dojot-emu up and running'});
 });
 
 app.get('/tenants', (req, res) => {
-	iota.init().then(() => {
+//	iota.init().then(() => {
 		let tenants = iota.messenger.tenants;
 		res.status(200).send({tenants});
-	}).catch(err => res.send(err));
+//	}).catch(err => res.send(err));
 });
 
 app.post('/tenants', (req, res) => {
@@ -56,7 +69,7 @@ app.post('/tenants/:tenant/devices/:device/messages', (req, res) => {
 	let {tenant, device} = req.params;
 	let message = req.body;
 
-	iota.init().then(() => {
+//	iota.init().then(() => {
 	
 		let metadata = {
 			timestamp: Date.now(),
@@ -64,19 +77,10 @@ app.post('/tenants/:tenant/devices/:device/messages', (req, res) => {
 	
 		iota.updateAttrs(device, tenant, message, metadata);
 		res.status(200).send({tenant, device, message, metadata});
-	}).catch(err => res.send(err));
+//	}).catch(err => res.send(err));
 });
 
 app.listen(emuPort, () => {
 	console.log('dojot-emu listening on port', emuPort);
 });
 
-console.log('Initializing dojot client');
-let dojot = new dojotLib();
-dojot.configure('http://apigw:8000').then(configuredDojot => {
-	console.log('Configured');
-	configuredDojot.initializeWithCredentials({username:'admin', passwd:'admin'}).then(initializedDojot => {
-		console.log('Initialized');
-		dojot = configuredDojot;
-	});
-});

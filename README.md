@@ -77,7 +77,7 @@ The tenant name must be sent along the request body.
 
 ```json
 {
-	name: newTenantName
+	"name": "newTenantName"
 }
 ```
 
@@ -88,7 +88,7 @@ The body is a simple json mapping the device attributes
 
 ```json
 {
-	message: 'hi'
+	"message": "hi"
 }
 ```
 
